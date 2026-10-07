@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevMind AI - Pure Software Helper Workbench</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f4f5fd',
+                            100: '#e8eafb',
+                            200: '#d5d9f8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        },
+                        offwhite: {
+                            50: '#fcfcfd',
+                            100: '#f8fafc',
+                            200: '#f1f5f9',
+                            300: '#e2e8f0',
+                            400: '#cbd5e1',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Marked.js for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
+
+    <!-- Prism JS for Code Highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* ===================== Dark theme ===================== */
+        html.dark { color-scheme: dark; }
+        html.dark body { background-color: #0b1120; color: #e2e8f0; }
+
+        /* Surfaces */
+        html.dark header,
+        html.dark aside,
+        html.dark .offwhite-card,
+        html.dark .bg-white,
+        html.dark #modal-settings > div {
+            background-color: #131c2e;
+            border-color: #26334a;
+            color: #e2e8f0;
+        }
+        html.dark .bg-slate-50,
+        html.dark .bg-slate-100,
+        html.dark .bg-offwhite-50,
+        html.dark .bg-offwhite-100,
+        html.dark .bg-slate-50\/50,
+        html.dark .bg-slate-50\/70,
+        html.dark .bg-slate-200\/60 { background-color: #0f172a; }
+        html.dark .bg-slate-100\/80 { background-color: #0b1120; }            /* tab bar track: active tab (bg-white) stands out */
+        html.dark .from-offwhite-100 { background-image: linear-gradient(to top, #0b1120 55%, rgba(11,17,32,0)) !important; }
+
+        /* Hover states */
+        html.dark .hover\:bg-slate-50:hover,
+        html.dark .hover\:bg-slate-100:hover,
+        html.dark .hover\:bg-slate-200:hover { background-color: #1e293b; }
+        html.dark .hover\:bg-brand-100:hover { background-color: rgba(99,102,241,.28); }
+
+        /* Borders */
+        html.dark .border-slate-100,
+        html.dark .border-slate-200,
+        html.dark .border-slate-300,
+        html.dark .border-slate-200\/80 { border-color: #26334a; }
+
+        /* Inputs */
+        html.dark input, html.dark textarea, html.dark select {
+            background-color: #0b1120;
+            border-color: #26334a;
+            color: #e2e8f0;
+        }
+        html.dark ::placeholder { color: #64748b; }
+
+        /* Text */
+        html.dark .text-slate-900, html.dark .text-slate-800, html.dark .text-slate-700 { color: #f1f5f9; }
+        html.dark .text-slate-600 { color: #cbd5e1; }
+        html.dark .text-slate-500 { color: #a3b1c6; }
+        html.dark .text-slate-400 { color: #8494ab; }
+        html.dark .hover\:text-slate-900:hover { color: #ffffff; }
+        html.dark .hover\:text-slate-600:hover { color: #e2e8f0; }
+        html.dark .text-brand-500, html.dark .text-brand-600 { color: #a5b4fc; }
+        html.dark .text-brand-700 { color: #c7d2fe; }
+
+        /* Solid dark buttons/bubbles become brand-coloured so they stay visible */
+        html.dark .bg-slate-900 { background-color: #4f46e5; color: #ffffff; }
+        html.dark .hover\:bg-slate-800:hover { background-color: #4338ca; }
+        html.dark .bg-slate-800 { background-color: rgba(0,0,0,.28); }
+        html.dark #console-output { background-color: #050a14; color: #e2e8f0; }
+
+        /* Tinted status chips */
+        html.dark .bg-brand-50 { background-color: rgba(99,102,241,.16); }
+        html.dark .border-brand-200 { border-color: rgba(129,140,248,.35); }
+        html.dark .bg-emerald-50 { background-color: rgba(16,185,129,.12); }
+        html.dark .border-emerald-200 { border-color: rgba(16,185,129,.35); }
+        html.dark .text-emerald-600, html.dark .text-emerald-700 { color: #6ee7b7; }
+        html.dark .bg-amber-50 { background-color: rgba(245,158,11,.12); }
+        html.dark .border-amber-200 { border-color: rgba(245,158,11,.35); }
+        html.dark .text-amber-600, html.dark .text-amber-700 { color: #fcd34d; }
+        html.dark .bg-rose-50 { background-color: rgba(244,63,94,.12); }
+        html.dark .border-rose-200 { border-color: rgba(244,63,94,.35); }
+        html.dark .text-rose-600, html.dark .text-rose-700 { color: #fda4af; }
+
+        /* Code blocks (Prism light theme -> dark tokens) */
+        html.dark .code-block-wrapper { background-color: #0b1120 !important; border-color: #26334a; }
+        html.dark pre[class*="language-"], html.dark code[class*="language-"], html.dark pre code {
+            background: transparent !important; color: #e2e8f0 !important; text-shadow: none !important;
+        }
+        html.dark pre[class*="language-"] { background: #0b1120 !important; }
+        html.dark :not(pre) > code { background: #1e293b; color: #e2e8f0; }
+        html.dark .token.comment, html.dark .token.prolog, html.dark .token.doctype, html.dark .token.cdata { color: #7c8aa5; }
+        html.dark .token.punctuation { color: #94a3b8; }
+        html.dark .token.property, html.dark .token.tag, html.dark .token.constant, html.dark .token.symbol, html.dark .token.deleted { color: #f472b6; }
+        html.dark .token.boolean, html.dark .token.number { color: #fb923c; }
+        html.dark .token.selector, html.dark .token.attr-name, html.dark .token.string, html.dark .token.char, html.dark .token.builtin, html.dark .token.inserted { color: #86efac; }
+        html.dark .token.operator, html.dark .token.entity, html.dark .token.url, html.dark .language-css .token.string, html.dark .style .token.string { color: #cbd5e1; background: transparent; }
+        html.dark .token.atrule, html.dark .token.attr-value, html.dark .token.keyword { color: #93c5fd; }
+        html.dark .token.function, html.dark .token.class-name { color: #fbbf24; }
+        html.dark .token.regex, html.dark .token.important, html.dark .token.variable { color: #fda4af; }
+
+        /* Scrollbars */
+        html.dark ::-webkit-scrollbar-track { background: #0b1120; }
+        html.dark ::-webkit-scrollbar-thumb { background: #334155; }
+        html.dark ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        /* Custom Soft Off-White Scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Monaco/Editor Code Font */
+        code, pre, .font-code {
+            font-family: 'JetBrains Mono', monospace !important;
+        }
+
+        /* Clean Off-White UI Shadow & Borders */
+        .offwhite-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(8px);
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.02), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+        }
+
+        .offwhite-card-hover {
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .offwhite-card-hover:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.05);
+            transform: translateY(-1px);
+        }
+
+        .code-block-wrapper {
+            position: relative;
+            background-color: #f8fafc !important;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            margin-top: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        /* Typing cursor animation */
+        .typing-dot {
+            animation: blink 1.4s infinite ease-in-out both;
+        }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes blink {
+            0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+            40% { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col">
+    <header class="h-14 bg-white border-b border-slate-200 px-4 flex items-center justify-between flex-shrink-0 z-20">
+        <!-- Mobile & Desktop Top Bar Sidebar Toggle -->
+        <div class="flex items-center space-x-3">
+            <button onclick="toggleSidebarCollapse()" class="lg:hidden w-8 h-8 rounded-lg border border-slate-200 bg-white flex items-center justify-center text-slate-600 text-xs transition-colors shadow-sm" title="Toggle Sidebar">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <div class="w-8 h-8 rounded-lg bg-slate-900 text-white flex items-center justify-center font-bold shadow-sm">
+                <i class="fa-solid fa-code text-brand-500 text-sm"></i>
+            </div>
+            <div>
+                <h1 class="text-sm font-semibold tracking-tight text-slate-900 flex items-center gap-2">
+                    <span id="app-name"></span>
+                    <span id="app-badge" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 border border-brand-200 font-medium"></span>
+                </h1>
+            </div>
+        </div>
+
+        <!-- Mode Navigation Switcher -->
+        <div class="hidden md:flex items-center bg-slate-100/80 p-1 rounded-lg border border-slate-200 text-xs font-medium">
+            <button id="btn-mode-chat" onclick="switchView('chat')" class="px-3 py-1.5 rounded-md bg-white text-slate-900 shadow-sm transition-all flex items-center gap-1.5">
+                <i class="fa-solid fa-comments text-brand-600"></i> AI Copilot
+            </button>
+            <button id="btn-mode-studio" onclick="switchView('studio')" class="px-3 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition-all flex items-center gap-1.5">
+                <i class="fa-solid fa-laptop-code text-slate-500"></i> Code Studio
+            </button>
+            <button id="btn-mode-audit" onclick="switchView('audit')" class="px-3 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition-all flex items-center gap-1.5">
+                <i class="fa-solid fa-shield-halved text-emerald-600"></i> Security & Diagnostics
+            </button>
+        </div>
+
+        <!-- Right Side Settings & Persona Selector -->
+        <div class="flex items-center space-x-3">
+            <!-- Persona Indicator -->
+            <div class="relative">
+                <select id="persona-select" onchange="changePersona()" class="bg-white border border-slate-200 text-xs text-slate-700 rounded-lg px-2.5 py-1.5 pr-7 font-medium focus:outline-none focus:border-brand-500 cursor-pointer shadow-sm"></select>
+            </div>
+
+            <!-- Settings Button -->
+            <button onclick="toggleSettingsModal()" class="w-8 h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center text-slate-600 text-xs transition-colors shadow-sm" title="AI Settings">
+                <i class="fa-solid fa-sliders"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Workbench Area -->
+    <div class="flex-1 flex overflow-hidden">
+        
+        <!-- Sidebar Panel (Collapsible history & software tools) -->
+        <aside id="sidebar" class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between hidden lg:flex transition-all duration-300 z-10 relative">
+            <!-- Top Actions & Session List -->
+            <div class="p-3 flex-1 flex flex-col overflow-y-auto">
+                
+                <!-- Sidebar Header with Collapse Toggle Button -->
+                <div class="flex items-center justify-between mb-3 px-1">
+                    <span class="sidebar-text text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Navigation</span>
+                    <button id="btn-toggle-sidebar" onclick="toggleSidebarCollapse()" class="w-6 h-6 rounded border border-slate-200 hover:bg-slate-100 flex items-center justify-center text-slate-500 text-xs transition-colors" title="Collapse/Expand Sidebar">
+                        <i id="sidebar-toggle-icon" class="fa-solid fa-angles-left"></i>
+                    </button>
+                </div>
+
+                <button onclick="createNewChat()" class="w-full py-2 px-3 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-medium flex items-center justify-between transition-colors shadow-sm mb-4">
+                    <span class="flex items-center gap-2">
+                        <i class="fa-solid fa-plus text-xs text-brand-500"></i>
+                        <span class="sidebar-text">New Task Session</span>
+                    </span>
+                    <span class="sidebar-text text-[10px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-400 font-mono">Ctrl+N</span>
+                </button>
+
+                <!-- Software Helper Shortcuts -->
+                <div class="mb-4">
+                    <div class="sidebar-text text-[10px] font-semibold text-slate-400 uppercase tracking-wider px-2 mb-2">Coding Utilities</div>
+                    <div id="utilities-list" class="space-y-1"></div>
+                </div>
+
+                <!-- Session History -->
+                <div class="flex-1">
+                    <div class="sidebar-text text-[10px] font-semibold text-slate-400 uppercase tracking-wider px-2 mb-2 flex items-center justify-between">
+                        <span>Recent Sessions</span>
+                    </div>
+                    <div id="session-history-list" class="space-y-1">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar Bottom Info & Dark/Light Mode Toggle -->
+            <div class="p-3 border-t border-slate-200 bg-slate-50/50 space-y-2">
+                <!-- Dark / Light Theme Toggle Button -->
+                <button id="theme-toggle-btn" onclick="toggleDarkMode()" class="w-full py-1.5 px-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-xs text-slate-700 flex items-center justify-between transition-colors shadow-sm" title="Toggle Light / Dark Mode">
+                    <span class="flex items-center gap-2">
+                        <i id="theme-icon" class="fa-solid fa-moon text-indigo-500"></i>
+                        <span class="sidebar-text font-medium">Dark Mode</span>
+                    </span>
+                    <span id="theme-status-text" class="sidebar-text text-[10px] font-mono text-slate-400">Off</span>
+                </button>
+
+                <div class="flex items-center justify-between text-xs text-slate-500 pt-1">
+                    <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> <span id="app-status" class="sidebar-text"></span></span>
+                    <span id="app-version" class="font-mono text-[10px] text-slate-400 sidebar-text"></span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- VIEW 1: Main AI Copilot Chat View -->
+        <main id="view-chat" class="flex-1 flex flex-col min-w-0 bg-offwhite-50 relative">
+            
+            <!-- Chat Messages Container -->
+            <div id="chat-messages" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 max-w-4xl w-full mx-auto">
+                
+                <!-- Welcome Banner -->
+                <div class="offwhite-card rounded-xl p-6 border border-slate-200/80 shadow-sm text-center max-w-2xl mx-auto my-4">
+                    <div class="w-12 h-12 rounded-xl bg-slate-900 text-white flex items-center justify-center mx-auto mb-3 shadow-md">
+                        <i class="fa-solid fa-brain text-brand-500 text-lg"></i>
+                    </div>
+                    <h2 class="text-base font-semibold text-slate-900 mb-1" id="welcome-title"></h2>
+                    <p class="text-xs text-slate-500 leading-relaxed max-w-md mx-auto mb-4" id="welcome-text"></p>
+
+                    <div id="starter-pills" class="flex flex-wrap justify-center gap-2"></div>
+                </div>
+
+                <!-- Chat Messages Stream Here -->
+            </div>
+
+            <!-- Floating Prompt Input Box -->
+            <div class="p-4 bg-gradient-to-t from-offwhite-100 via-offwhite-100 to-transparent sticky bottom-0 z-20">
+                <div class="max-w-4xl mx-auto">
+                    
+                    <!-- Quick Action Tool Palette above Input -->
+                    <div class="flex items-center gap-1.5 mb-2 overflow-x-auto pb-1 text-xs">
+                        <button onclick="injectCodeFromStudio()" class="px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors flex items-center gap-1 text-[11px]">
+                            <i class="fa-solid fa-code-pull-request text-brand-600"></i> Import Studio Code
+                        </button>
+                        <span id="snippet-tags" class="contents"></span></div>
+
+                    <!-- Input Box Container -->
+                    <div class="offwhite-card rounded-xl p-2.5 border border-slate-300 shadow-md focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-500/10 transition-all">
+                        <textarea id="chat-input" rows="3" placeholder="Ask a technical question, paste code snippet, or paste error trace..." class="w-full bg-transparent text-xs md:text-sm text-slate-800 placeholder-slate-400 focus:outline-none resize-none px-2 py-1 font-mono"></textarea>
+                        
+                        <div class="flex items-center justify-between pt-2 border-t border-slate-100 mt-1">
+                            <div class="flex items-center space-x-2 text-slate-400 text-xs">
+                                <label class="cursor-pointer hover:text-slate-600 transition-colors flex items-center gap-1" title="Attach file or code snippet">
+                                    <i class="fa-solid fa-paperclip"></i>
+                                    <span class="text-[11px] hidden sm:inline">Attach Context</span>
+                                    <input type="file" id="file-attachment" class="hidden" onchange="handleFileUpload(event)">
+                                </label>
+                                <span id="attachment-name" class="text-[11px] font-mono text-brand-600 font-medium hidden"></span>
+                            </div>
+
+                            <div class="flex items-center space-x-2">
+                                <span class="text-[10px] text-slate-400 hidden sm:inline font-mono">Shift+Enter for newline</span>
+                                <button id="btn-send" onclick="sendMessage()" class="px-4 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold flex items-center gap-2 transition-all shadow-sm">
+                                    <span>Send</span>
+                                    <i class="fa-solid fa-arrow-up text-[10px]"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- VIEW 2: Code Studio & Sandbox View (Hidden by default) -->
+        <main id="view-studio" class="flex-1 flex flex-col md:flex-row min-w-0 bg-offwhite-50 hidden">
+            <!-- Left Side: Interactive Code Editor Pane -->
+            <div class="flex-1 flex flex-col border-r border-slate-200 bg-white">
+                <!-- Code Editor Toolbar -->
+                <div class="h-10 bg-slate-50 border-b border-slate-200 px-3 flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-solid fa-code text-brand-600 text-xs"></i>
+                        <span class="text-xs font-semibold text-slate-700">Studio Editor</span>
+                        <!-- Language Select -->
+                        <select id="editor-lang" onchange="updateEditorSyntax()" class="bg-white border border-slate-200 text-[11px] rounded px-2 py-0.5 font-mono text-slate-700 focus:outline-none"></select>
+                    </div>
+
+                    <div class="flex items-center space-x-1.5">
+                        <button onclick="copyStudioCode()" class="px-2 py-1 bg-white hover:bg-slate-100 border border-slate-200 rounded text-[11px] text-slate-600 transition-colors flex items-center gap-1">
+                            <i class="fa-regular fa-copy"></i> Copy
+                        </button>
+                        <button onclick="runStudioCode()" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[11px] font-semibold transition-colors flex items-center gap-1 shadow-sm">
+                            <i class="fa-solid fa-play text-[9px]"></i> Run Code
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Textarea Code Input -->
+                <div class="flex-1 relative flex">
+                    <div class="w-10 bg-slate-50/70 border-r border-slate-200 py-3 text-right pr-2 text-slate-400 font-mono text-xs select-none space-y-1">
+                        1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15
+                    </div>
+                    <textarea id="studio-code-input" class="flex-1 p-3 bg-white font-mono text-xs md:text-sm text-slate-800 leading-relaxed focus:outline-none resize-none" placeholder="// Paste or write code here...
+function calculateOptimalThroughput(nodes, latency) {
+    console.log('Analyzing topology with', nodes, 'nodes...');
+    const result = nodes.map(n => n * (100 - latency));
+    return result.reduce((a, b) => a + b, 0);
+}
+
+const total = calculateOptimalThroughput([10, 20, 30], 12);
+console.log('Total throughput calculated:', total);
+"></textarea>
+                </div>
+            </div>
+
+            <!-- Right Side: Live Execution & Diagnostic Panel -->
+            <div class="w-full md:w-96 bg-offwhite-100 flex flex-col border-t md:border-t-0 border-slate-200">
+                <!-- Panel Header -->
+                <div class="h-10 bg-slate-50 border-b border-slate-200 px-3 flex items-center justify-between">
+                    <span class="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+                        <i class="fa-solid fa-terminal text-slate-500"></i> Execution Console & Output
+                    </span>
+                    <button onclick="clearConsole()" class="text-slate-400 hover:text-slate-600 text-xs">Clear</button>
+                </div>
+
+                <!-- Console Output Container -->
+                <div id="console-output" class="flex-1 p-3 font-mono text-xs text-slate-800 overflow-y-auto space-y-2 bg-slate-900 text-slate-200">
+                    <div class="text-slate-500 text-[11px]">// Sandbox Console Ready. Click "Run Code" to execute.</div>
+                </div>
+
+                <!-- AI Diagnostic Sidebar Box -->
+                <div class="p-3 border-t border-slate-200 bg-white">
+                    <button onclick="analyzeStudioCodeWithAI()" class="w-full py-2 px-3 rounded-lg bg-brand-50 hover:bg-brand-100 text-brand-700 border border-brand-200 text-xs font-semibold flex items-center justify-center gap-2 transition-colors">
+                        <i class="fa-solid fa-microchip"></i> AI Analysis & Time Complexity
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- VIEW 3: Security & Audit View (Hidden by default) -->
+        <main id="view-audit" class="flex-1 overflow-y-auto p-6 bg-offwhite-50 hidden">
+            <div class="max-w-4xl mx-auto space-y-6">
+                <!-- Title Card -->
+                <div class="offwhite-card rounded-xl p-5 border border-slate-200">
+                    <div class="flex items-center justify-between mb-2">
+                        <h2 class="text-base font-semibold text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-shield-halved text-emerald-600"></i> AI Static Security & Code Vulnerability Scanner
+                        </h2>
+                        <span class="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-0.5 rounded-full font-medium">OWASP Top 10 Audit</span>
+                    </div>
+                    <p class="text-xs text-slate-500">
+                        Paste your source code to perform static analysis for security vulnerabilities, memory leaks, hardcoded credentials, and performance bottlenecks.
+                    </p>
+                </div>
+
+                <!-- Audit Code Input -->
+                <div class="offwhite-card rounded-xl p-4 border border-slate-200 space-y-3">
+                    <label class="block text-xs font-semibold text-slate-700">Source Code for Audit</label>
+                    <textarea id="audit-code-input" rows="6" class="w-full p-3 font-mono text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:border-emerald-500" placeholder="// Paste code snippet to analyze for security vulnerabilities..."></textarea>
+                    
+                    <div class="flex justify-end">
+                        <button onclick="runSecurityAudit()" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center gap-2 transition-colors shadow-sm">
+                            <i class="fa-solid fa-magnifying-glass font-bold"></i> Run Deep AI Audit
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Audit Results Container -->
+                <div id="audit-results" class="hidden space-y-4">
+                    <!-- Dynamic audit findings go here -->
+                </div>
+            </div>
+        </main>
+
+    </div>
+
+    <!-- AI Settings & System Instructions Modal -->
+    <div id="modal-settings" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-xl max-w-md w-full p-6 border border-slate-200 shadow-xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="text-sm font-semibold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-brand-600"></i> AI Copilot Settings
+                </h3>
+                <button onclick="toggleSettingsModal()" class="text-slate-400 hover:text-slate-600 text-sm">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Custom System Prompt / Behavior</label>
+                    <textarea id="setting-system-prompt" rows="3" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono text-slate-800 focus:outline-none focus:border-brand-500" placeholder="You are a senior software helper who provides clean, production-ready code with concise explanations."></textarea>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Temperature (Creativity vs Determinism)</label>
+                    <input type="range" id="setting-temp" min="0" max="1" step="0.1" value="0.2" class="w-full accent-brand-600">
+                    <div class="flex justify-between text-[10px] text-slate-400 mt-0.5 font-mono">
+                        <span>0.0 (Precise/Deterministic)</span>
+                        <span>1.0 (Creative)</span>
+                    </div>
+                </div>
+
+                <div class="pt-2 border-t border-slate-100">
+                    <label class="block font-semibold text-slate-700 mb-1">Simulated Code Sandbox Engine</label>
+                    <select id="setting-engine" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-700"></select>
+                </div>
+            </div>
+
+            <div class="flex justify-end pt-3 border-t border-slate-100">
+                <button onclick="saveSettings()" class="px-4 py-1.5 rounded-lg bg-slate-900 text-white text-xs font-semibold hover:bg-slate-800 transition-colors">
+                    Save Configuration
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global Application State
+        let currentView = 'chat';
+        let currentPersona = 'fullstack';
+        let chatHistory = [];
+        let activeSessionId = Date.now().toString();
+        let sessions = [];
+        let currentAttachment = null;
+        let isSidebarCollapsed = false;
+        let isDarkMode = false;
+
+        function toggleSidebarCollapse() {
+            const sidebar = document.getElementById('sidebar');
+            const toggleIcon = document.getElementById('sidebar-toggle-icon');
+            const sidebarTexts = document.querySelectorAll('.sidebar-text');
+
+            // For mobile toggle
+            if (window.innerWidth < 1024) {
+                sidebar.classList.toggle('hidden');
+                return;
+            }
+
+            isSidebarCollapsed = !isSidebarCollapsed;
+
+            if (isSidebarCollapsed) {
+                sidebar.classList.remove('w-64');
+                sidebar.classList.add('w-16');
+                sidebarTexts.forEach(el => el.classList.add('hidden'));
+                if (toggleIcon) {
+                    toggleIcon.classList.remove('fa-angles-left');
+                    toggleIcon.classList.add('fa-angles-right');
+                }
+            } else {
+                sidebar.classList.remove('w-16');
+                sidebar.classList.add('w-64');
+                sidebarTexts.forEach(el => el.classList.remove('hidden'));
+                if (toggleIcon) {
+                    toggleIcon.classList.remove('fa-angles-right');
+                    toggleIcon.classList.add('fa-angles-left');
+                }
+            }
+        }
+
+        // Custom AI Settings
+        let aiSettings = {};
+
+
+        function switchView(viewName) {
+            currentView = viewName;
+            
+            // Hide all views
+            document.getElementById('view-chat').classList.add('hidden');
+            document.getElementById('view-studio').classList.add('hidden');
+            document.getElementById('view-audit').classList.add('hidden');
+
+            // Reset navigation button styles
+            const btnChat = document.getElementById('btn-mode-chat');
+            const btnStudio = document.getElementById('btn-mode-studio');
+            const btnAudit = document.getElementById('btn-mode-audit');
+
+            [btnChat, btnStudio, btnAudit].forEach(btn => {
+                btn.className = "px-3 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition-all flex items-center gap-1.5";
+            });
+
+            // Show active view
+            if (viewName === 'chat') {
+                document.getElementById('view-chat').classList.remove('hidden');
+                btnChat.className = "px-3 py-1.5 rounded-md bg-white text-slate-900 shadow-sm transition-all flex items-center gap-1.5 font-semibold";
+            } else if (viewName === 'studio') {
+                document.getElementById('view-studio').classList.remove('hidden');
+                btnStudio.className = "px-3 py-1.5 rounded-md bg-white text-slate-900 shadow-sm transition-all flex items-center gap-1.5 font-semibold";
+            } else if (viewName === 'audit') {
+                document.getElementById('view-audit').classList.remove('hidden');
+                btnAudit.className = "px-3 py-1.5 rounded-md bg-white text-slate-900 shadow-sm transition-all flex items-center gap-1.5 font-semibold";
+            }
+        }
+
+        function setPrompt(text) {
+            const input = document.getElementById('chat-input');
+            input.value = text;
+            input.focus();
+        }
+
+        function addSnippetTag(tag) {
+            const input = document.getElementById('chat-input');
+            input.value = `[${tag}] ` + input.value;
+            input.focus();
+        }
+
+        function injectCodeFromStudio() {
+            const studioCode = document.getElementById('studio-code-input').value;
+            if (!studioCode.trim()) {
+                showToast("Studio code editor is empty!");
+                return;
+            }
+            const lang = document.getElementById('editor-lang').value;
+            const input = document.getElementById('chat-input');
+            input.value += `\n\`\`\`${lang}\n${studioCode}\n\`\`\`\n`;
+            showToast("Studio code injected into prompt.");
+        }
+
+        function renderMessage(role, text, attachment = null) {
+            const container = document.getElementById('chat-messages');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = role === 'user' ? 'flex justify-end' : 'flex justify-start';
+
+            if (role === 'user') {
+                msgDiv.innerHTML = `
+                    <div class="max-w-2xl bg-slate-900 text-white rounded-2xl rounded-tr-none p-4 shadow-sm space-y-2 text-xs md:text-sm">
+                        ${attachment ? `<div class="text-[11px] font-mono bg-slate-800 px-2 py-1 rounded text-slate-300 flex items-center gap-1.5"><i class="fa-solid fa-paperclip"></i> ${escapeHtml(attachment.name)}</div>` : ''}
+                        <div class="whitespace-pre-wrap font-sans">${escapeHtml(text)}</div>
+                    </div>
+                `;
+            } else {
+                // Assistant Message with Clean Off-White Markdown Container
+                const parsedContent = DOMPurify.sanitize(marked.parse(text));
+                msgDiv.innerHTML = `
+                    <div class="max-w-3xl flex items-start space-x-3 w-full">
+                        <div class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex-shrink-0 flex items-center justify-center text-slate-800 font-bold shadow-sm">
+                            <i class="fa-solid fa-code text-brand-600 text-xs"></i>
+                        </div>
+                        <div class="flex-1 offwhite-card rounded-2xl rounded-tl-none p-5 border border-slate-200 shadow-sm text-xs md:text-sm text-slate-800 leading-relaxed overflow-hidden">
+                            <div class="prose prose-slate max-w-none text-xs md:text-sm">
+                                ${parsedContent}
+                            </div>
+                            <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+                                <span class="flex items-center gap-1"><i class="fa-solid fa-microchip text-brand-500"></i> DevMind Copilot</span>
+                                <div class="flex items-center space-x-2">
+                                    <button onclick="copyToClipboard(this)" class="hover:text-slate-600 transition-colors"><i class="fa-regular fa-copy"></i> Copy Response</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.appendChild(msgDiv);
+            container.scrollTop = container.scrollHeight;
+            return msgDiv;
+        }
+
+        function clearConsole() {
+            document.getElementById('console-output').innerHTML = `<div class="text-slate-500 text-[11px]">// Sandbox Console Cleared.</div>`;
+        }
+
+        function copyStudioCode() {
+            const code = document.getElementById('studio-code-input').value;
+            copyToClipboardRaw(code);
+            showToast("Studio code copied to clipboard!");
+        }
+
+        function showTypingIndicator() {
+            const container = document.getElementById('chat-messages');
+            const id = 'typing-' + Date.now();
+            const typingDiv = document.createElement('div');
+            typingDiv.id = id;
+            typingDiv.className = 'flex justify-start items-center space-x-2';
+            typingDiv.innerHTML = `
+                <div class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-800 shadow-sm">
+                    <i class="fa-solid fa-code text-brand-600 text-xs"></i>
+                </div>
+                <div class="offwhite-card px-4 py-3 rounded-2xl rounded-tl-none border border-slate-200 shadow-sm flex items-center space-x-1">
+                    <div class="w-2 h-2 bg-slate-400 rounded-full typing-dot"></div>
+                    <div class="w-2 h-2 bg-slate-400 rounded-full typing-dot"></div>
+                    <div class="w-2 h-2 bg-slate-400 rounded-full typing-dot"></div>
+                </div>
+            `;
+            container.appendChild(typingDiv);
+            container.scrollTop = container.scrollHeight;
+            return id;
+        }
+
+        function removeTypingIndicator(id) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                currentAttachment = file;
+                const nameLabel = document.getElementById('attachment-name');
+                nameLabel.textContent = file.name;
+                nameLabel.classList.remove('hidden');
+            }
+        }
+
+        function renderSessionHistory() {
+            const list = document.getElementById('session-history-list');
+            if (!list) return;
+            if (sessions.length === 0) {
+                list.innerHTML = `<div class="text-[11px] text-slate-400 italic px-2">No past sessions</div>`;
+                return;
+            }
+
+            list.innerHTML = sessions.map(s => `
+                <div class="group flex items-center rounded-md hover:bg-slate-100 transition-colors ${s.id === activeSessionId ? 'bg-slate-100' : ''}">
+                    <button onclick="loadSession('${escapeHtml(s.id)}')" class="flex-1 min-w-0 text-left px-2.5 py-1.5 text-xs text-slate-700 truncate block ${s.id === activeSessionId ? 'font-semibold text-slate-900' : ''}">
+                        <i class="fa-regular fa-message text-[10px] mr-1.5 text-slate-400"></i> ${escapeHtml(s.title)}
+                    </button>
+                    <button onclick="deleteSession('${escapeHtml(s.id)}')" title="Delete this chat" aria-label="Delete this chat" class="px-2 py-1.5 text-[10px] text-slate-400 hover:text-rose-500 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity flex-shrink-0">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        async function deleteSession(id) {
+            if (!confirm('Delete this chat?')) return;
+            try {
+                await api('/sessions/' + encodeURIComponent(id), { method: 'DELETE' });
+                sessions = sessions.filter(s => s.id !== id);
+                if (id === activeSessionId) createNewChat(); else renderSessionHistory();
+                showToast('Chat deleted.');
+            } catch (e) { showToast(e.message); }
+        }
+
+        function toggleSettingsModal() {
+            const modal = document.getElementById('modal-settings');
+            modal.classList.toggle('hidden');
+        }
+
+        function initPrismHighlighting() {
+            setTimeout(() => {
+                if (window.Prism) Prism.highlightAll();
+            }, 100);
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        function copyToClipboard(btn) {
+            const card = btn.closest('.offwhite-card');
+            const text = card ? card.innerText : '';
+            copyToClipboardRaw(text);
+            showToast("Copied content to clipboard!");
+        }
+
+        function copyToClipboardRaw(text) {
+            const dummy = document.createElement("textarea");
+            document.body.appendChild(dummy);
+            dummy.value = text;
+            dummy.select();
+            document.execCommand("copy");
+            document.body.removeChild(dummy);
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = "fixed bottom-5 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs px-4 py-2 rounded-lg shadow-lg z-50 transition-all font-medium";
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2500);
+        }
+
+        // ================= Backend integration: ALL data comes from the Express API =================
+        let APP = null;
+
+        // If the page was opened straight from disk (file://), talk to the local server explicitly.
+        const API_BASE = location.protocol === 'file:' ? 'http://localhost:3000' : '';
+        async function api(path, opts = {}) {
+            let res;
+            try {
+                res = await fetch(API_BASE + '/api' + path, {
+                    method: opts.method || 'GET',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: opts.body ? JSON.stringify(opts.body) : undefined
+                });
+            } catch (e) {
+                throw new Error('Cannot reach the backend at ' + (API_BASE || location.origin) + '. Is "npm start" running? Open the app at http://localhost:3000');
+            }
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data.error || ('Request failed (' + res.status + ')'));
+            return data;
+        }
+        const newSessionId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+        const setText = (id, t) => { const el = document.getElementById(id); if (el) el.textContent = t; };
+        const optionHtml = (v, l) => `<option value="${escapeHtml(v)}">${escapeHtml(l)}</option>`;
+
+        function applyTheme(theme) {
+            isDarkMode = theme === 'dark';
+            document.documentElement.classList.toggle('dark', isDarkMode);
+            const icon = document.getElementById('theme-icon');
+            if (icon) icon.className = isDarkMode ? 'fa-solid fa-sun text-amber-400' : 'fa-solid fa-moon text-indigo-500';
+            setText('theme-status-text', isDarkMode ? 'On' : 'Off');
+        }
+        function toggleDarkMode() {
+            applyTheme(isDarkMode ? 'light' : 'dark');
+            showToast(isDarkMode ? 'Dark theme activated.' : 'Light off-white theme activated.');
+            saveSetting({ theme: isDarkMode ? 'dark' : 'light' });
+        }
+        function saveSetting(patch) {
+            return api('/settings', { method: 'PUT', body: patch }).then(s => { Object.assign(aiSettings, s); return s; })
+                .catch(e => showToast('Could not save: ' + e.message));
+        }
+
+        function applyBootstrap(d) {
+            APP = d;
+            aiSettings = d.settings;
+            document.title = d.app.title;
+            setText('app-name', d.app.name); setText('app-badge', d.app.badge);
+            setText('app-version', 'v' + d.app.version); setText('app-status', d.app.status);
+            setText('welcome-title', d.welcome.title); setText('welcome-text', d.welcome.text);
+
+            const persona = document.getElementById('persona-select');
+            persona.innerHTML = d.personas.map(p => optionHtml(p.id, p.label)).join('');
+            currentPersona = d.settings.persona || d.defaultPersona;
+            persona.value = currentPersona;
+
+            document.getElementById('starter-pills').innerHTML = d.starters.map((p, i) =>
+                `<button onclick="setPrompt(APP.starters[${i}].prompt)" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs text-slate-700 transition-colors border border-slate-200 font-medium">${escapeHtml(p.label)}</button>`).join('');
+
+            document.getElementById('utilities-list').innerHTML = d.utilities.map(u =>
+                `<button onclick="quickPrompt('${escapeHtml(u.id)}')" class="w-full text-left px-2.5 py-1.5 rounded-md hover:bg-slate-100 text-xs text-slate-700 flex items-center justify-between group transition-colors" title="${escapeHtml(u.label)}">
+                    <span class="flex items-center gap-2"><i class="${escapeHtml(u.icon)}"></i> <span class="sidebar-text">${escapeHtml(u.label)}</span></span>
+                    <i class="fa-solid fa-chevron-right text-[10px] opacity-0 group-hover:opacity-100 text-slate-400 transition-opacity sidebar-text"></i>
+                </button>`).join('');
+
+            document.getElementById('snippet-tags').innerHTML = d.snippetTags.map(t =>
+                `<button onclick="addSnippetTag('${escapeHtml(t.tag)}')" class="px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors text-[11px]">${escapeHtml(t.label)}</button>`).join('');
+
+            document.getElementById('editor-lang').innerHTML = d.languages.map(l => optionHtml(l.id, l.label)).join('');
+            document.getElementById('setting-engine').innerHTML = d.engines.map(e => optionHtml(e.id, e.label)).join('');
+            document.getElementById('setting-system-prompt').value = d.settings.systemPrompt;
+            document.getElementById('setting-temp').value = d.settings.temperature;
+            document.getElementById('setting-engine').value = d.settings.engine;
+
+            const studio = document.getElementById('studio-code-input');
+            if (!studio.value.trim()) studio.value = d.studio.defaultCode;
+
+            applyTheme(d.settings.theme);
+            sessions = d.sessions;
+            renderSessionHistory();
+        }
+
+        window.onload = async function() {
+            document.getElementById('chat-input').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+            });
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.key.toLowerCase() === 'n') { e.preventDefault(); createNewChat(); }
+            });
+            try { applyBootstrap(await api('/bootstrap')); }
+            catch (e) { showToast('Cannot reach backend: ' + e.message); }
+        };
+
+        function changePersona() {
+            currentPersona = document.getElementById('persona-select').value;
+            saveSetting({ persona: currentPersona });
+            showToast('Persona updated to: ' + currentPersona.toUpperCase());
+        }
+
+        function quickPrompt(id) {
+            const u = APP && APP.utilities.find(x => x.id === id);
+            if (!u) return;
+            switchView('chat');
+            setPrompt(u.prompt);
+        }
+
+        async function refreshSessions() {
+            try { sessions = (await api('/sessions')).sessions; renderSessionHistory(); } catch (e) { showToast(e.message); }
+        }
+
+        function createNewChat() {
+            activeSessionId = newSessionId();
+            document.getElementById('chat-messages').innerHTML = '';
+            renderSessionHistory();
+            showToast('Started new software helper session.');
+        }
+
+        async function loadSession(id) {
+            try {
+                const s = await api('/sessions/' + encodeURIComponent(id));
+                activeSessionId = id;
+                document.getElementById('chat-messages').innerHTML = '';
+                s.messages.forEach(m => renderMessage(m.role, m.text, m.attachment ? { name: m.attachment } : null));
+                renderSessionHistory();
+                switchView('chat');
+                initPrismHighlighting();
+            } catch (e) { showToast(e.message); }
+        }
+
+
+        // Streams the reply from POST /api/chat/stream (Server-Sent Events) so text appears as it is generated.
+        async function streamChat(body, handlers) {
+            let res;
+            try {
+                res = await fetch(API_BASE + '/api/chat/stream', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+            } catch (e) {
+                throw new Error('Cannot reach the backend at ' + (API_BASE || location.origin) + '. Is "npm start" running?');
+            }
+            if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.error || ('Request failed (' + res.status + ')')); }
+            const reader = res.body.getReader(), dec = new TextDecoder();
+            let buf = '';
+            for (;;) {
+                const { value, done } = await reader.read();
+                if (done) break;
+                buf += dec.decode(value, { stream: true });
+                let i;
+                while ((i = buf.indexOf('\n\n')) >= 0) {
+                    const ev = buf.slice(0, i); buf = buf.slice(i + 2);
+                    const line = ev.split('\n').find(l => l.startsWith('data:'));
+                    if (!line) continue;
+                    const m = JSON.parse(line.slice(5));
+                    if (m.error) throw new Error(m.error);
+                    if (m.delta) handlers.onDelta(m.delta);
+                    if (m.done) handlers.onDone(m);
+                }
+            }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const btn = document.getElementById('btn-send');
+            const promptText = input.value.trim();
+            if ((!promptText && !currentAttachment) || btn.disabled) return;
+
+            const file = currentAttachment;
+            if (file && file.size > 100000) { showToast('Attachment too large (max 100 KB of text).'); return; }
+            renderMessage('user', promptText, file);
+            input.value = '';
+            currentAttachment = null;
+            document.getElementById('attachment-name').classList.add('hidden');
+            btn.disabled = true; btn.classList.add('opacity-60');
+            const typingId = showTypingIndicator();
+
+            const chat = document.getElementById('chat-messages');
+            let prose = null, full = '', raf = 0;
+            const paint = () => { raf = 0; prose.innerHTML = DOMPurify.sanitize(marked.parse(full)); chat.scrollTop = chat.scrollHeight; };
+            try {
+                const attachment = file ? { name: file.name, content: await file.text() } : null;
+                await streamChat({ sessionId: activeSessionId, message: promptText, persona: currentPersona, attachment }, {
+                    onDelta(t) {
+                        if (!prose) { removeTypingIndicator(typingId); prose = renderMessage('assistant', '').querySelector('.prose'); }
+                        full += t;
+                        if (!raf) raf = requestAnimationFrame(paint);
+                    },
+                    onDone(d) { sessions = d.sessions; }
+                });
+                if (raf) cancelAnimationFrame(raf);
+                if (prose) paint();
+                initPrismHighlighting();
+                renderSessionHistory();
+            } catch (e) {
+                removeTypingIndicator(typingId);
+                if (raf) cancelAnimationFrame(raf);
+                if (prose) { full += '\n\n**Error:** ' + e.message; paint(); }
+                else renderMessage('assistant', '**Error:** ' + e.message);
+            } finally {
+                btn.disabled = false; btn.classList.remove('opacity-60');
+            }
+        }
+
+        function analyzeStudioCodeWithAI() {
+            const code = document.getElementById('studio-code-input').value;
+            const lang = document.getElementById('editor-lang').value;
+            switchView('chat');
+            setPrompt(APP.studio.analyzePrompt + '\n```' + lang + '\n' + code + '\n```');
+            sendMessage();
+        }
+
+        async function saveSettings() {
+            const s = await saveSetting({
+                systemPrompt: document.getElementById('setting-system-prompt').value,
+                temperature: parseFloat(document.getElementById('setting-temp').value),
+                engine: document.getElementById('setting-engine').value
+            });
+            if (s && !s.error) { toggleSettingsModal(); showToast('Settings updated!'); }
+        }
+
+        async function runStudioCode() {
+            const code = document.getElementById('studio-code-input').value;
+            const language = document.getElementById('editor-lang').value;
+            const out = document.getElementById('console-output');
+            out.innerHTML = `<div class="text-slate-400 text-[11px]">// Running ${escapeHtml(language.toUpperCase())} on the server...</div>`;
+            try {
+                const r = await api('/studio/run', { method: 'POST', body: { code, language } });
+                if (r.stdout) out.innerHTML += r.stdout.split('\n').map(l => `<div class="text-slate-200 whitespace-pre-wrap">${escapeHtml(l)}</div>`).join('');
+                if (r.stderr) out.innerHTML += `<div class="text-rose-400 whitespace-pre-wrap">${escapeHtml(r.stderr)}</div>`;
+                if (r.supported && r.ok && !r.stdout) out.innerHTML += `<div class="text-emerald-400">✓ Program executed successfully with no stdout.</div>`;
+                if (r.supported) out.innerHTML += `<div class="text-slate-500 text-[10px]">Exit code: ${r.exitCode} | ${r.durationMs} ms${r.timedOut ? ' | TIMED OUT' : ''}</div>`;
+            } catch (e) {
+                out.innerHTML += `<div class="text-rose-400 font-bold">[Error]: ${escapeHtml(e.message)}</div>`;
+            }
+        }
+
+        async function runSecurityAudit() {
+            const code = document.getElementById('audit-code-input').value;
+            const box = document.getElementById('audit-results');
+            if (!code.trim()) { showToast('Please enter or paste source code to audit.'); return; }
+            box.classList.remove('hidden');
+            box.innerHTML = `<div class="offwhite-card rounded-xl p-4 border border-slate-200 animate-pulse flex items-center justify-center gap-3"><i class="fa-solid fa-spinner fa-spin text-emerald-600"></i><span class="text-xs font-semibold text-slate-700">Gemini is reviewing your code...</span></div>`;
+            try {
+                const r = await api('/audit', { method: 'POST', body: { code } });
+                const tone = r.score >= 80 ? 'emerald' : r.score >= 50 ? 'amber' : 'rose';
+                const tones = { emerald: 'bg-emerald-50 border-emerald-200 text-emerald-700', amber: 'bg-amber-50 border-amber-200 text-amber-700', rose: 'bg-rose-50 border-rose-200 text-rose-700' };
+                const serious = r.counts.critical + r.counts.high, minor = r.counts.medium + r.counts.low;
+                const sevCls = { critical: 'text-rose-600', high: 'text-rose-500', medium: 'text-amber-600', low: 'text-slate-500' };
+                box.innerHTML = `
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div class="${tones[tone]} border p-3 rounded-lg text-center"><div class="text-lg font-bold">${r.score} / 100</div><div class="text-[11px] font-medium">Security Health Score</div></div>
+                        <div class="bg-amber-50 border border-amber-200 p-3 rounded-lg text-center"><div class="text-lg font-bold text-amber-700">${minor} Warning${minor === 1 ? '' : 's'}</div><div class="text-[11px] text-amber-600 font-medium">Medium / Low</div></div>
+                        <div class="bg-slate-50 border border-slate-200 p-3 rounded-lg text-center"><div class="text-lg font-bold text-slate-700">${serious} Critical / High</div><div class="text-[11px] text-slate-500 font-medium">${r.linesScanned} lines scanned</div></div>
+                    </div>
+                    <div class="offwhite-card rounded-xl p-4 border border-slate-200 space-y-3">
+                        <h4 class="text-xs font-semibold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation text-amber-500"></i> Identified Findings & Recommendations</h4>
+                        ${r.summary ? `<p class="text-xs text-slate-600 leading-relaxed">${escapeHtml(r.summary)}</p>` : ''}
+                        <div class="space-y-2 text-xs">${r.findings.length ? r.findings.map(f => `
+                            <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                                <div class="font-semibold text-slate-800 mb-1"><span class="${sevCls[f.severity]} uppercase">[${f.severity}]</span> ${escapeHtml(f.title)} <span class="font-mono text-[10px] text-slate-400">${f.line ? 'line ' + f.line : ''}</span> <span class="font-mono text-[10px] text-slate-400">· ${f.source === 'ai' ? 'AI review' : 'pattern rule'}</span></div>
+                                ${f.snippet ? `<div class="font-mono text-[10px] bg-slate-200/60 p-1.5 rounded text-slate-800 mb-2 overflow-x-auto">${escapeHtml(f.snippet)}</div>` : ''}
+                                <p class="text-slate-600 text-[11px] mb-1">${escapeHtml(f.description)}</p>
+                                <p class="text-emerald-700 text-[11px]"><b>Fix:</b> ${escapeHtml(f.fix)}</p>
+                            </div>`).join('') : '<div class="text-slate-500">No issues found in the code you pasted.</div>'}</div>
+                    </div>`;
+            } catch (e) {
+                box.innerHTML = `<div class="offwhite-card rounded-xl p-4 border border-rose-200 text-xs text-rose-600">${escapeHtml(e.message)}</div>`;
+            }
+        }
+
+    </script>
+</body>
+</html>
